@@ -1,0 +1,21 @@
+.TLinfo
+{
+	position:fixed;
+	right:15px;
+	top:15px;
+	width:300px;
+	margin:5px 5px 5px 5px;
+	border-left: 4px;
+	border-right: 4px;
+	display: block;
+	background:#e0e0e0;
+	color:black;
+	text-align: left;
+	float:right;
+	overflow: hidden;
+	-webkit-box-shadow: -5px -5px 5px #888;
+	z-index: 9999;
+	filter:alpha(opacity=95);
+	opacity:0.95;
+	border-radius: 5px;
+}

@@ -1,0 +1,15 @@
+{
+  "name": "KillBlueBar",
+  "version": "1.0",
+  "description": "Removes \"new twitter notification\" Blue bar from twitter web",
+  "content_scripts": [
+    {
+      "matches": ["http://*/*","https://*/*"],
+      "js": ["jq.js","removeblue.js"]
+    }
+  ],
+  "permissions": [
+    "http://twitter.com/*",
+    "https://twitter.com/*"
+  ]
+}

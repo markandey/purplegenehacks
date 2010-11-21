@@ -1,0 +1,64 @@
+<html>
+<head>
+<title>Twitter Analysis<title>
+<script src='http://www.google.com/jsapi' type='text/javascript'> 
+</script> 
+<script type='text/javascript'> 
+            google.load("jquery", "1.3.2");
+            google.load("jqueryui", "1.7.1");
+</script>
+
+
+</head>
+<body>
+
+
+<div id='tweets'>
+</div>
+
+
+<script type="text/javascript" language="javascript" charset="utf-8">
+// <![CDATA[
+    var tweetpage=1;
+    function loadtweetdata(data){
+        if(!data.query){
+            alert("YQL failed!!");
+        }
+        if(!data.query.results){
+            alert("Twitter failed!!");
+        }
+        if(!data.query.results.feed){
+            alert("Twitter feed not found!!");
+        }
+        if(!data.query.results.feed.entry){
+            alert('not found');
+        }
+        else{
+            for(var i=0;i<data.query.results.feed.entry.length;++i){
+                var tweet_html="<p>"+data.query.results.feed.entry[i].content.content+"</p>"
+                $("#tweets").append(tweet_html);
+            }
+            LoadTwitter(tweetpage);
+            tweetpage=tweetpage+1;
+        }
+    }
+    function LoadTwitter(page){
+       var url="https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'http%3A%2F%2Ftwitter.com%2Fstatuses%2Fuser_timeline%2Fmarkandey.atom%3Fpage%3D"+page+"%26count%3D20'&format=json&callback=loadtweetdata";
+       $.getScript(url);
+       
+    }
+// ]]>
+</script>
+<script type="text/javascript" language="javascript" charset="utf-8">
+// <![CDATA[
+    $(document).ready(function(){
+            LoadTwitter(tweetpage); 
+            tweetpage=tweetpage+1;      
+    });
+    
+    
+// ]]>
+</script>
+</body>
+
+</html>

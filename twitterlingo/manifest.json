@@ -1,0 +1,24 @@
+{
+  "name": "TweetChrome",
+  "version": "1.1",
+  "description": "Very useful extension to know more about twitter users. Their tweet pattern,ranks, happiness, style, pics & many more. Give a try!!",
+  "background_page": "background.html",
+  "icons":{"128":"icon.jpg"},
+  "browser_action": {
+    "default_icon": "icon.jpg",
+    "default_title": "TweetChrome",
+    "popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://www.twitter.com/*"],
+      "js": ["contentscript.js"]
+    }
+  ],
+  "permissions": [
+    "http://www.twitter.com/",
+     "http://www.purplegene.com/",
+    "http://query.yahooapis.com/",
+    "tabs"
+  ]
+}

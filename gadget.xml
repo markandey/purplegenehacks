@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<ModulePrefs title="MyTimeLine" 
+           description="Makes timeline out of given spreadsheet. first column must be a year." 
+             author="markandey" 
+             author_affiliation="markandey" 
+             author_email="mark.dawn@gmail.com" 
+             screenshot="/ig/modules/spreadsheet.png" 
+             thumbnail="/ig/modules/spreadsheet-thm.png" > 
+<Require feature="idi"/>
+<Require feature="locked-domain" />
+</ModulePrefs>
+<UserPref name="_table_query_url" display_name="Data source url" 
+          required="true"/>
+<Content type="html"><![CDATA[
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <title>
+      Google Visualization API Sample
+    </title>
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load('visualization', '1', {packages: ['annotatedtimeline']});
+    </script>
+    <script type="text/javascript">
+    /*########################################*/
+    function drawchart(data) {
+  
+  var annotatedtimeline = new google.visualization.AnnotatedTimeLine(
+      document.getElementById('visualization'));
+  annotatedtimeline.draw(data, {'displayAnnotations': true});
+}
+​
+    
+    
+    
+    /*#######################################*/
+    var visualization;
+
+    function drawVisualization() {
+      var query = new google.visualization.Query('http://spreadsheets.google.com/ccc?key=0AgGxPO1AxEhldDBDMjdUSlFjZl9kRWl4S2lwT19zNlE&hl=en');
+      query.send(handleQueryResponse);
+    }
+    
+    function handleQueryResponse(response) {
+      if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+      var data = response.getDataTable();
+      
+      var dispdata= new google.visualization.DataTable();
+      for (var colh = 0; colh < data.getNumberOfColumns(); colh++){
+          var cl=data.getColumnLabel(colh);
+          if(colh==0)
+          {
+                dispdata.addColumn('date', 'YEAR');
+          }
+          else
+          {
+                dispdata.addColumn('number', cl);
+          }
+      }
+      dispdata.addRows(data.getNumberOfRows());
+      
+      for (var row = 0; row < data.getNumberOfRows(); row++) {
+            for (var col = 0; col < data.getNumberOfColumns(); col++) {
+                 var value= data.getFormattedValue(row, col);  
+                 if( col==0)
+                 {         
+                    dispdata.setValue(row, col, new Date(value, 1 ,1));
+                 }
+                 else
+                 {
+                    dispdata.setValue(row, col,parseInt(value));
+                 }
+               
+               
+            }
+      }
+      drawchart(dispdata);
+      
+    }
+
+    google.setOnLoadCallback(drawVisualization);
+    </script>
+  </head>
+  <body style="font-family: Arial;border: 0 none;">
+    <div id="visualization" style="height: 400px; width: 800px;"></div>
+  </body>
+</html>
+  
+]]>
+</Content>
+</Module>

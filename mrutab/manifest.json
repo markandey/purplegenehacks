@@ -1,0 +1,16 @@
+{
+  "name": "mrutab",
+  "version": "1.0",
+  "description": "MRU tab switch",  
+  "permissions": [
+    "http://www.twitter.com/",
+    "http://query.yahooapis.com/",
+    "tabs"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*"],
+       "js": ["jq.js", "myscript.js"]
+    }
+  ]
+}

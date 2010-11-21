@@ -1,0 +1,225 @@
+<HTML> 
+<HEAD> 
+<TITLE>TITLE GOES HERE</TITLE> 
+<script src='http://www.google.com/jsapi' type='text/javascript'> 
+</script> 
+<script type='text/javascript'> 
+            google.load("jquery", "1.3.2");
+            google.load("jqueryui", "1.7.1");
+</script>
+<script type="text/javascript" language="javascript" charset="utf-8">
+// <![CDATA[
+    var tweeps={
+        "getWhenIJoinedTwitter":function(user,element){
+             /*todo: do not make more than 150 calls in minute*/
+             var propertyname='<span class="prop">Joined twitter On:</span><span class="val">';
+              $(element).html(propertyname+"Loading..."+"</span>");
+             var url="http://twitter.com/users/show/"+user+".json?callback=?";
+             $.getJSON(url,function(data){
+                     if(data.created_at){
+                        var myArray = data.created_at.split(' ');
+                        var input = myArray[0] + ', ' + myArray[2] + ' ' + myArray[1] + ' ' + myArray[3] + ' ' + myArray[5].substring(0, 4);
+                        var dateMillis = Date.parse(input);
+                        var theDate = new Date(dateMillis);
+                         
+                        var month_names = new Array();
+                        month_names[month_names.length] = "January";
+                        month_names[month_names.length] = "February";
+                        month_names[month_names.length] = "March";
+                        month_names[month_names.length] = "April";
+                        month_names[month_names.length] = "May";
+                        month_names[month_names.length] = "June";
+                        month_names[month_names.length] = "July";
+                        month_names[month_names.length] = "August";
+                        month_names[month_names.length] = "September";
+                        month_names[month_names.length] = "October";
+                        month_names[month_names.length] = "November";
+                        month_names[month_names.length] = "December";
+ 
+                        var myDateStr = theDate.getDate() + " " + month_names[theDate.getMonth()] + " " + theDate.getFullYear();
+                        
+                        
+                        $(element).html(propertyname+myDateStr+"</span>");
+                     }
+                     else{
+                        $(element).html(propertyname+"Error!! Not Found"+"</span>");
+                     }
+             });
+        },
+        "getTweepsInfo":function(user,element){
+            var propertyname='<span class="prop">Info: </span><span class="val">';
+             $(element).html(propertyname+"Loading..."+"</span>");
+            var url="http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Ftweeps.info%2Fprofile%2F"+user+"%22%20and%0A%20%20%20%20%20%20xpath%3D'%2F%2Fdiv%5B%40id%3D%22summary%22%5D%2F%2Fstrong'&format=json&diagnostics=false&callback=?"
+            $.getJSON(url,function(data){
+                     if(data.query.results.strong){
+                        
+                        var TwitterAddict=data.query.results.strong[1];
+                        var socialanimal=data.query.results.strong[2];
+                        var rarelyusehashtags=data.query.results.strong[3];
+                        var URL_sharer=data.query.results.strong[4];
+                        
+                        
+                        
+                        
+                        var url2="http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Ftweeps.info%2Fprofile%2F"+user+"%22%20and%0A%20%20%20%20%20%20xpath%3D'%2F%2Fdiv%5B%40id%3D%22summary%22%5D%2F%2Fa'&format=json&diagnostics=false&callback=?"
+                        $.getJSON(url2,function(data2){
+                            if(data2.query.results.a){
+                                var key1=data2.query.results.a[0].content;
+                                var key2=data2.query.results.a[1].content;
+                                var key3=data2.query.results.a[2].content;
+                                var text='Right now '+user+' is tweeting about ';
+                                text= text+'"'+key1+'","'+key2+'" and "'+key3+'".';
+                                text= text+' '+user+' is '+TwitterAddict+', and tends to be '+socialanimal+'.'+user+' '+rarelyusehashtags+', and is ';
+                                text= text+URL_sharer+'.';
+                                $(element).html(propertyname+text+"</span>");
+                            }
+                            else{
+                                
+                            }
+                        });
+                     }
+                     else{
+                        $(element).html(propertyname+"Error!! Not Found"+"</span>");
+                     }
+             });
+        },
+        "getTwitterQuotient":function(user,element){
+              var propertyname='<span class="prop">Quotient: </span><span class="val">';
+              $(element).html(propertyname+"Loading..."+"</span>");
+             var url="http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Ftools.forret.com%2Ftwitter%2Ftwitter-tq.php%3Fn%3D"+user+"%22%20and%0A%20%20%20%20%20%20xpath%3D'%2F%2Fdiv%5B%40id%3D%22main%22%5D%2Fdiv%5B%40class%3D%22index%22%5D%2Fp'&format=json&diagnostics=false&callback=?";
+             $.getJSON(url,function(data){
+                     if(data.query.results.p){
+                        
+                        var text=user+' is proud because "'+data.query.results.p[0]+'".';
+                        text=text+'He/She has '+data.query.results.p[1]+'.';
+                        text=text+'He/She has '+data.query.results.p[2]+'.';
+                        text=text+'He/She has '+data.query.results.p[3]+'.';
+                        $(element).html(propertyname+text+"</span>");
+                     }
+                     else{
+                        $(element).html(propertyname+"Error!! Not Found"+"</span>");
+                     }
+             });
+        },
+        "getTwitterHappiness":function(user,element){
+             var propertyname='<span class="prop">Happiness: </span><span class="val">';
+             $(element).html(propertyname+"Loading..."+"</span>");
+             var url="http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Fhappytweets.com%2FTweetAnalysis.aspx%3Fu%3D"+user+"%22%20and%20%20xpath%3D'%2F%2Fdiv%5B%40id%3D%22score%22%5D%2Fp'&format=json&diagnostics=false&callback=?"
+             $.getJSON(url,function(data){
+                     if(data.query.results.p[1].strong){
+                        
+                        var text=user+' is '+data.query.results.p[1].strong+'.';
+                        $(element).html(propertyname+text+"</span>");
+                     }
+                     else{
+                        $(element).html(propertyname+"Error!! Not Found"+"</span>");
+                     }
+             });
+        },
+        "gettwitterholicGR":function(user,element){
+             
+             var propertyname='<span class="prop">Global Rank: </span><span class="val">';
+             $(element).html(propertyname+"Loading..."+"</span>");
+             var url="http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Ftwitterholic.com%2F"+user+"%22%20and%20%20xpath%3D'%2F%2Fdiv%5B%40id%3D%22user_details%22%5D%2Fp%5B%40id%3D%22rank%22%5D%2Fstrong'&format=json&diagnostics=false&callback=?";
+             $.getJSON(url,function(data){
+                     if(data.query.results.strong){
+                        
+                        var rank=data.query.results.strong;
+                        $(element).html(propertyname+rank+"</span>");
+                     }
+                     else{
+                        $(element).html(propertyname+"Error!! Not Found"+"</span>");
+                     }
+             });
+        },
+        
+        "gettwitterholicLR":function(user,element){
+             var propertyname='<span class="prop">Location Rank: </span><span class="val">';
+             $(element).html(propertyname+"Loading..."+"</span>");
+             var url="http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20html%20where%20url%3D%22http%3A%2F%2Ftwitterholic.com%2F"+user+"%22%20and%20%20xpath%3D'%2F%2Fdiv%5B%40id%3D%22user_details%22%5D%2Fp%5B%40id%3D%22locationrank%22%5D%2Fstrong'&format=xml&diagnostics=false&callback=?";
+             $.getJSON(url,function(data){
+                     if(data.results){
+                        var rank=""+data.results;
+                        $(element).html(rank);
+                        rank=$(element).text();
+                        $(element).html(propertyname+rank+"</span>");                        
+                     }
+                     else{
+                        $(element).html(propertyname+"Error!! Not Found"+"</span>");
+                     }
+             });
+        },
+        "getAll":function(user,element){
+            $(element).append('<DIV ID="twitterholic"></DIV');
+            $(element).append('<DIV ID="LocalRank"></DIV');
+            $(element).append('<DIV ID="whenjoined"></DIV');
+            $(element).append('<DIV ID="info"></DIV');
+            $(element).append('<DIV ID="quotient"></DIV');
+            $(element).append('<DIV ID="happiness"></DIV');
+            
+             tweeps.getWhenIJoinedTwitter(user,"#whenjoined");      
+             tweeps.getTweepsInfo(user,"#info");
+             tweeps.getTwitterQuotient(user,"#quotient");
+             tweeps.getTwitterHappiness(user,"#happiness");
+             tweeps.gettwitterholicGR(user,"#twitterholic");
+             tweeps.gettwitterholicLR(user,"#LocalRank");
+
+        }
+        
+   
+    };/*tweeps end*/
+    $(document).ready(function(){
+             tweeps.getAll("vemana","#main");      
+            
+    });
+    
+// ]]>
+</script>
+<STYLE> 
+body
+{
+    background-color:#000000;
+    color:#ffffff;
+    text-align: center;
+}
+table span
+{
+    font-size:400%;
+    
+}
+#mycontent
+{
+    margin-left: auto;
+    margin-right: auto;
+    width: 50em;
+}
+img
+{
+    width:100px;
+    height:100px;
+}
+div
+{
+    text-align: left;
+}
+.prop
+{
+    color:purple;
+    font-weight:bold;
+}
+.val
+{
+    color:green;
+    
+}
+</STYLE> 
+
+</HEAD> 
+<BODY> 
+<DIV ID="mycontent"> 
+<H1 ID="titletext">Twitter Lingo</H1>
+<DIV ID="main">
+
+</DIV> 
+</BODY> 
+</HTML>

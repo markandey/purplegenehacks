@@ -1,0 +1,20 @@
+{
+  "name": "TweetInline",
+  "version": "2.2",
+  "description": "Boom Boom pow",
+  "background_page": "bckgrnd.html",
+  "browser_action": {
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*","https://*/*"],
+      "css":["content.css"],
+      "js": ["jq.js","contentscript.js"]
+    }
+  ],
+  "permissions": [
+    "http://twitter.com/*",
+    "https://twitter.com/*",
+    "tabs"
+  ]
+}

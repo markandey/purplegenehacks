@@ -1,0 +1,24 @@
+{
+  "name": "ChromYQLip",
+  "version": "1.0",
+  "description": "Instatly grab content from a page.",
+  "background_page": "background.html",
+  "icons":{"128":"icon.jpg"},
+  "browser_action": {
+    "default_icon": "icon.jpg",
+    "default_title": "ChromeClip",
+    "popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*"],
+      "js": ["contentscript.js"]
+    }
+  ],
+  "permissions": [
+    "http://www.twitter.com/",
+     "http://www.purplegene.com/",
+    "http://query.yahooapis.com/",
+    "tabs"
+  ]
+}
