@@ -1,0 +1,20 @@
+{
+  "name": "PurpleGene Feed Reader",
+  "description": "Feed reader for hackers",
+  "version": "5",
+  "app": {
+    "urls": [
+      "http://www.purplegene.com/reader"
+    ],
+    "launch": {
+      "web_url": "http://www.purplegene.com/reader"
+    }
+  },
+  "icons": {
+    "128": "icon.png"
+  },
+  "permissions": [
+    "unlimitedStorage",   
+    "notifications"
+  ]
+}

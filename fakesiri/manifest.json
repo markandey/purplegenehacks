@@ -1,0 +1,12 @@
+{
+  "name": "FakeSiri",
+  "version": "2.0",
+  "description": "Faking Siri for chrome",
+  "icons":{"128":"icon.png"},
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_title": "Faking Siri for chrome",
+    "popup": "popuphell.html"
+  },
+  "permissions": ["tts","tabs"]
+}
