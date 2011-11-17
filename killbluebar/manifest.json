@@ -1,6 +1,6 @@
 {
   "name": "KillBlueBar",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Removes \"new twitter notification\" Blue bar from twitter web",
   "content_scripts": [
     {

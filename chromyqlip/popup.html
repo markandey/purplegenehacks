@@ -7,7 +7,7 @@
     <style>
     body
 {
-    background-color: #f0f0f0;
+    background-color: #fefefe;
     color: #00000;
     min-width:357px;
     overflow-x:hidden;
@@ -15,8 +15,11 @@
     </style>
 </head>
 <body>
-    <h1>
-        ChromY<span>QLip<span>(ChromyClip)</span></span></h1>
+    <div id="grid">
+        <div id="head-icon"><img src="icon.png" width="36px"></div>
+         <div id="head"><p>ChromYQLip</p><p id="hint"> ( ChromyClip )</p></div> 
+    </div>
+    <p></p>
     <div id="box">
         <div id="row1" class="formbox">
             URL<input id="txturl" type="text" value="http://www.imdb.com/boxoffice/alltimegross?region=world-wide" />
@@ -44,7 +47,7 @@
         Chrome need to be restarted after the instaltion and extension does not work for
         URLs like https, chrome://, file:// etc.
     </div>
-    HTML Preview
+    <div class="lbl">HTML Preview</div>
     <textarea id="previewcontainer" readonly="readonly">
 Click preview button to fetch html here...
 </textarea>

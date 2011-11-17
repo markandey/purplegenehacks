@@ -1,9 +1,46 @@
 body
 {
-    background-color: #f0f0f0;
+    background-color: #fff;
     color: #00000;
     min-width:357px;
     overflow-x:hidden;
+    font-family:verdana;
+}
+           #grid{
+  margin:0px;
+  padding:0px;
+  
+  
+     }
+     #grid:after{
+        content: "\0020";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+        overflow:hidden;
+     }
+#grid p{
+    margin:0px;
+    padding:0px;
+    
+}
+#hint{
+    font-size:60%;
+}
+#head{
+    font-size:110%;
+    color:#00777f;
+    margin-top:-2px;
+    margin-left:10px;
+    display: inline;
+    float:left;
+}
+#head-icon{
+    width:36px;
+    height:36px;
+    display: inline;
+    float:left;
 }
 #mycontent
 {
@@ -11,6 +48,9 @@ body
     margin-right: auto;
     width: 560px;
     font-size: 80%;
+}
+.lbl{
+    margin-bottom:5px;
 }
 #box
 {
@@ -54,15 +94,15 @@ body
 #previewcontainer
 {
     width: 550px;
-    height: 250px;
+    height: 230px;
 }
 .formbox
 {
     margin-top: 5px;
     margin-bottom: 5px;
     position: relative;
-    background: #e0e0e0;
-    color: dodgerblue;
+    background: #f0f0f0;
+    color: #489da4;
     font-size: 90%;
     padding: 5px;
     border-radius: 5px;
@@ -71,7 +111,7 @@ body
 }
 .formbox:hover
 {
-    background: #c0c0c0;
+    background: #e8e8e8;
     color: black;
 }
 #divlink
@@ -85,8 +125,8 @@ input
 }
 .mybutton
 {
-    background: dodgerblue;
-    font-size: 100%;
+    background: #489da4;
+    font-size: 90%;
     color: white;
     border: 0px solid #aeaa05;
     border-radius: 4px;
@@ -95,8 +135,8 @@ input
 }
 .mybutton:hover
 {
-    background: blue;
-    cursor: hand;
+    background: #086b84;
+    cursor: pointer;
 }
 .fl
 {
@@ -144,11 +184,11 @@ h1 span span, h2 span span, h3 span span
 }
 .formbox:hover .node
 {
-    background: #e0e0e0;
+    background: #d0d0d0;
 }
 .formbox:hover .cur, .cur
 {
-    background: #00cc00;
+    background: #1ec2eb;
 }
 .footer
 {
@@ -157,17 +197,18 @@ h1 span span, h2 span span, h3 span span
 .footer A:link
 {
     text-decoration: none;
-    color: dodgerblue;
+    color: #489da4;
 }
+
 .footer A:visited
 {
     text-decoration: none;
-    color: dodgerblue;
+    color: #489da4;
 }
 .footer A:active
 {
     text-decoration: none;
-    color: dodgerblue;
+    color: #489da4;
 }
 .footer A:hover
 {

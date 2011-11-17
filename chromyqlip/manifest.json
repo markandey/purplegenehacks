@@ -1,10 +1,10 @@
 {
   "name": "ChromYQLip",
-  "version": "2.3",
+  "version": "2.6",
   "description": "Quickly clip any information from a page & ignore the noise. Targeting web developers for YQL scrapping.",
-  "icons":{"128":"icon.jpg"},
+  "icons":{"128":"icon.png"},
   "browser_action": {
-    "default_icon": "icon.jpg",
+    "default_icon": "icon.png",
     "default_title": "ChromYQLip",
     "popup": "popup.html"
   },
