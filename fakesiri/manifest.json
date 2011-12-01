@@ -1,6 +1,6 @@
 {
   "name": "FakeSiri",
-  "version": "2.0",
+  "version": "2.7",
   "description": "Faking Siri for chrome",
   "icons":{"128":"icon.png"},
   "browser_action": {

@@ -1,10 +1,17 @@
-  html,body{
+  html{
             background:#303030;
             box-shadow: 0 0 550px rgba(0, 0, 0, 0.2), inset 0 0 350px rgba(0, 0, 0, 0.6);
             font-family:verdana;
             font-size:100%;
             text-align:center;
             color:#fafafa;
+        }
+        body{
+            background:transparent;
+        }
+        .ui-autocomplete{
+            text-align:left;
+            font-size:80%;
         }
         a{
             color:#fafafa;
@@ -14,32 +21,30 @@
             border:1px solid rgba(128, 128, 128, 0.7);
             box-shadow: 0 0 550px rgba(0, 0, 0, 0.2), inset 0 0 350px rgba(0, 0, 0, 0.6);
             border-radius:10px;
-            --box-shadow: rgba(128, 128, 128, 0.9) 0px 0px 20px;
+            text-shadow: 1px 1px 5px #aaa;
             width:800px;
             margin:auto;  
             padding:8px;  
         }
-        .left{
-             text-align:left;
-            float:left;
+        .left,.right{
             min-height:80px;
             padding:10px;
             border: 2px solid #aaaaaa;
             border-radius:15px 15px 15px 15px;
-            background: rgba(170,170,170,0.3);
+            background: rgba(40,40,40,0.5);
             min-width:300px;
             color: #fff;
+        }
+        .left{
+            text-align:left;
+            float:left;
+            
             margin-left:30px;
         }
         .right{
             text-align:left;
             float:right;
-            min-width:300px;
-            min-height:80px;
-            padding:10px;
-            border: 2px solid #aaaaaa;
-            border-radius:15px 15px 15px 15px;
-            background: rgba(170,170,170,0.3);
+
             font-weight:bold;
             color: #fff;;
             margin-right:30px;
@@ -64,16 +69,22 @@
     height:0; 
     border-left: 0px solid red;
     border-right: 38px solid transparent;
-    border-bottom: 22px solid #AAA;
+    
     position: relative;
     left: 47px;
     top: 12px;
+}
+.left-arrow-outer,.right-arrow-outer{
+    border-bottom: 22px solid #AAA;
+}
+.right-arrow-inner,.left-arrow-inner{
+    border-bottom: 17px solid rgb(40,40,40);
 }
 .right-arrow-inner{
     width:0; 
     height:0; 
     border-right: 31px solid transparent;
-    border-bottom: 17px solid rgba(0, 0, 0, .3);
+    
     position: relative;
     top: 0px;
     margin-top:3px;
@@ -86,7 +97,6 @@
        height:0; 
     border-left: 0px solid red;
     border-left: 38px solid transparent;
-    border-bottom: 22px solid #AAA;
     position: relative;
     left: -50px;
     top: 0px;
@@ -95,7 +105,7 @@
     width:0; 
     height:0; 
     border-left: 31px solid transparent;
-    border-bottom: 17px solid rgba(0, 0, 0, .3);
+    
     position: relative;
     top: 0px;
     margin-top:3px;
