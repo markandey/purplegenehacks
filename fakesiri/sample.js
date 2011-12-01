@@ -1,0 +1,17 @@
+var autoQuery=[
+	'joke',
+	'tell me a joke',
+	'how are you?',
+	'hello',
+	'hi',
+	'1234+807',
+	'212*67',
+	'route from bangalore to Mumbai',
+	'pizza near bangalore',
+	'temperature in bangalore',
+	'weather in new delhi',
+	'who is steve jobs.',
+	'revenue of microsoft',
+	'play katy perry',
+	'where is taj mahal',
+];
