@@ -27,7 +27,7 @@
             padding:8px;  
         }
         .left,.right{
-            min-height:80px;
+            min-height:50px;
             padding:10px;
             border: 2px solid #aaaaaa;
             border-radius:15px 15px 15px 15px;

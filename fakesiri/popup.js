@@ -13,6 +13,7 @@ var ignoreWA = false;
 var keys = [];
 var AlchemyAPILoaded = [];
 var myPos = {};
+var myAddress=null;
 String.prototype.trim = function () {
     return this.replace(/^\s+|\s+$/, '');
 };
@@ -23,6 +24,25 @@ function getSearchCompleteHandler(searchType, searchObject) {
         }
     return searchComplete;
 }
+
+function geoCodeAddress(lat,lng) {
+  var latlng=new GLatLng(lat,lng);
+  if (latlng == null) {
+    return;
+  }
+    var geocoder = new GClientGeocoder();
+    geocoder.getLocations(latlng, function(res){
+        
+            if(!res || res.Status.code!==200){
+                console.log("reverse geo code failed");
+            }else{
+                 console.log('GEO CODE',res.Placemark[1].address);
+                 myAddress=res.Placemark[1].address;
+            }
+    });
+}
+
+
 
 function doAlchemyAPI_extract(query) {
     var url = 'http://www.purplegene.com/tagme?q=' + escape(query) + '&cb=?';
@@ -357,6 +377,11 @@ function placeMaker(str) {
                 var lat = myPos.coords.latitude
                 var lang = myPos.coords.longitude
                 getLocalTimeFromLocation('here', lat, lang);
+            }else if (bwheather && myPos.coords) {
+                ignoreWA = true;
+                if(!(myAddress==null || myAddress.length<=0)){
+                    placeMaker(str+myAddress);
+                }
             }
         }
     });
@@ -740,6 +765,7 @@ $(document).ready(function () {
 
     navigator.geolocation.getCurrentPosition(function (position) {
         myPos = position;
+        geoCodeAddress(myPos.coords.latitude,myPos.coords.longitude);
     });
 });
 
