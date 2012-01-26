@@ -1,30 +1,139 @@
-var waitmsg = ['Let me search...', 'I am thinking. ', 'Please wait..', 'Just a sec..', 'hold on..'];
+var waitmsg = ['Let me search...', 'I am thinking. ', 'Please wait..', 'Just a sec..', 'hold on..','ok, I am looking at it..','working on it..','I will be back in few seconds.','Let me check on this!'];
 var NoisyImageDataUrls = [];
 var NoisyImageDataIndex = 0;
 var isAskingQuestion = false;
 var questionContext = false;
 var AlchemyAPIWaitCount = 0;
 
-var sorrymsg = ['Sorry, i don\'t know about it!', 'No comments from me on that!', 'Not sure abut it.', 'Sorry, i don\'t have answer!', 'I am sorry!, not able to answer you at this time. ', 'can you rephrase your question?', ];
-
+var sorrymsg = ['Sorry, i don\'t know about it!', 'No comments from me on that!', 'Not sure abut it.', 'Sorry, i don\'t have answer!', 'I am sorry!, not able to answer you at this time. ', 'can you rephrase your question?'];
 var myInterpretation = ['So you asked about ', 'If Your question is about ', 'I interpreted is as ', 'Cool!  ', 'So, ', 'This is what i got about '];
+var googleSnippet = ['this might help you!','see if this helps','are you talking about this?','may be this is what you want!'];
+var taskAddedMsg = ['Added a to-do','added a task for you!','You have it in your task list','your task-list is updated','Added a task','Task added','OK, I have added a task in your to do list'];
+var taskIsListHeremsg = ['This is what you have to do','You have to do these many things','here are your tasks! get going','here is your to-do-list','todolist','you have work to-do'];
+var viewPortHeight=0;
+var consoleHeight=0;
 var ytPlayer;
 var ignoreWA = false;
 var keys = [];
 var AlchemyAPILoaded = [];
 var myPos = {};
 var myAddress=null;
+var sorryCount=0;
+var currentQuery='';
+var randGoogleCount=0;
+var googleResults={};
+var promoteHtml='<div class="spread"><a href="http://www.facebook.com/sharer.php?u=https%3A//chrome.google.com/webstore/detail/ggdpdjbjioohmgdhmegcbnodpdcamhpj&amp;t=Experience%20Siri%20Like%20Feature%20on%20Chrome%28pc%29"  target="_blank"> on Facebook</a> <a href="http://twitter.com/share?url=https%3A//chrome.google.com/webstore/detail/ggdpdjbjioohmgdhmegcbnodpdcamhpj&amp;text=Experience%20Siri%20Like%20Feature%20on%20Chrome%28pc%29" target="_blank"> on Twitter</a></div>';
+var promoteMessage=['If you like me, Please share on facebook or twitter','If you like me, Please spread on facebook or twitter','Hey! Would you like to introduce me with your friends?','I would love to meet your friends on facebook and twitter']
+var knockkock='Knock Knock\nWho\'s there?\nChicken!\nChicken who ?\nChicken your pockets - I think your keys are there!';
+//var hostname='http://localhost:8080';
+var hostname='http://www.purplegene.com';
+var correctedQuery='';
+function mylogger(){
+     //console.log(arguments);
+}
+function promoteMe(){
+    var msg=getRandomMsg(promoteMessage);
+    siriSaid(msg+promoteHtml,msg);
+}
+function isALocalSearch(query){
+    var item=["pizza", "restaurant", "hotel","station",'plumber',
+           'atm','coffee','burger','food','library','gym','tea','cafe','café',
+           'place','cleaners','theater','zoo','park','temple',
+           'masque','church','mall','airport','bus stop','train',
+           'lunch','dinner','breakfast','school','hospital','office'];
+    var location=['near', 'around','close','here','where','find','search'];
+    var fitem=false;
+    var floc=false;
+    for(var ii=0;ii<item.length;ii++){
+        if(query.toLowerCase().indexOf(item[ii])>=0){
+           fitem=true;
+           break;
+        }    
+    }
+    for(var li=0;li<location.length;li++){
+        if(query.toLowerCase().indexOf(location[li])>=0){
+           floc=true;
+           break;
+        }    
+    }
+    return [fitem,floc];
+    
+}
+
 String.prototype.trim = function () {
     return this.replace(/^\s+|\s+$/, '');
 };
 
 function getSearchCompleteHandler(searchType, searchObject) {
     var searchComplete = function (data) {
-            console.log(searchType, searchObject);
+            mylogger(searchType, searchObject);
+            googleResults[searchType]=searchObject;
         }
     return searchComplete;
 }
+function doGoogleSearchDump(web,img){
+    if(web.url.indexOf('youtube.com')>=0){
+        getYouTube(web.titleNoFormatting);
+        return;
+    }
+    var text=web.content.replace(/\<\/*.+?\>/g,'');
+    var img=img.tbUrl;
+    var html=("<div class='snippet'><a href='{link}'>{text}</a><div class='img-wrap'><img src='{imgurl}'></div></div>");
+    html=html.replace('{imgurl}',img);
+    html=html.replace('{link}',web.url);
+    html=html.replace('{text}',text);
+    if(text.indexOf('...')>=0){
+        if(randGoogleCount%2){
+            text=getRandomMsg(googleSnippet);    
+        }
+        randGoogleCount=randGoogleCount+1;
+    }
+    siriSaid(html,text);
+}
 
+function doGoogleNewsDump(query){
+    try{
+        html='<iframe height="250px" width="300px" frameborder="0" marginheight=0 marginwidth=0 scrolling="no" src="http://www.google.com/uds/modules/elements/newsshow/iframe.html?rsz=small{query}&format=300x250"></iframe>';
+        if(query.length>1){
+            var q='&q='+escape(query);
+            html=html.replace('{query}',q);    
+        }else{
+            html=html.replace('{query}','');    
+        }
+        
+        siriSaid('Here is News!<br>'+html,'Here is News!');
+    }catch(e){
+         saySorry();
+    }   
+}
+function takeHimToAUrl(url){
+    var msg='Opening a web page';
+    siriSaid(msg, msg);
+    chrome.tabs.create({
+            'url': url,
+            'selected': true
+        });
+}
+function saySorry(){
+    try{
+        var web=googleResults.web.results[0]
+        var img=googleResults.image.results[0];
+        doGoogleSearchDump(web,img);
+        return false;
+    }catch(e){
+        sorryCount++;
+        sorryCount=sorryCount%3;
+        var msg = getRandomMsg(sorrymsg);
+        siriSaid(msg, msg);
+        if(sorryCount==2){
+            setTimeout(function(){
+                explainYourself();
+            },1000);  
+        }    
+        return true;
+    }
+    
+}
 function geoCodeAddress(lat,lng) {
   var latlng=new GLatLng(lat,lng);
   if (latlng == null) {
@@ -34,10 +143,15 @@ function geoCodeAddress(lat,lng) {
     geocoder.getLocations(latlng, function(res){
         
             if(!res || res.Status.code!==200){
-                console.log("reverse geo code failed");
+                mylogger("reverse geo code failed");
             }else{
-                 console.log('GEO CODE',res.Placemark[1].address);
-                 myAddress=res.Placemark[1].address;
+                 var indx=res.Placemark.length-3;
+                 if(indx>=0){
+                    myAddress=res.Placemark[indx].address;    
+                 }else{
+                     myAddress=res.Placemark[0].address;
+                 }
+                  mylogger(myAddress);
             }
     });
 }
@@ -45,10 +159,10 @@ function geoCodeAddress(lat,lng) {
 
 
 function doAlchemyAPI_extract(query) {
-    var url = 'http://www.purplegene.com/tagme?q=' + escape(query) + '&cb=?';
+    var url = hostname+'/tagme?q=' + escape(query) + '&key=fakesiri&cb=?';
     $.getJSON(url, function (data) {
         AlchemyAPILoaded[0] = true;
-        console.log(data);
+        mylogger(data);
         if (!data || !data.entities) {
             return;
         }
@@ -64,7 +178,7 @@ function doAlchemyAPI_extract(query) {
 }
 
 function doAlchemyAPI_concept(query) {
-    var url = 'http://www.purplegene.com/ctagme?q=' + escape(query) + '&cb=?';
+    var url = hostname+'/ctagme?q=' + escape(query) + '&key=fakesiri&cb=?';
     $.getJSON(url, function (data) {
         AlchemyAPILoaded[1] = true;
         if (!data || !data.concepts) {
@@ -82,7 +196,7 @@ function doAlchemyAPI_concept(query) {
 }
 
 function doAlchemyAPI_keyword(query) {
-    var url = 'http://www.purplegene.com/keytagme?q=' + escape(query) + '&cb=?';
+    var url = hostname+'/keytagme?q=' + escape(query) + '&key=fakesiri&cb=?';
     $.getJSON(url, function (data) {
         AlchemyAPILoaded[2] = true;
         if (!data || !data.keywords) {
@@ -135,7 +249,7 @@ function doAlchemyAPI(str) {
             return ((a.relevance + offset[a.type]) - (b.relevance + offset[b.type]));
 
         });
-        console.log(keys);
+        mylogger(keys);
 
         if (keys[0]) {
             fallToQwiki(keys[0].text);
@@ -149,18 +263,18 @@ function doSearch(str) {
     var so = new google.search.WebSearch();
     so.setSearchCompleteCallback(this, getSearchCompleteHandler('web', so), null);
     so.execute(str);
-
+    
     so = new google.search.ImageSearch();
     so.setSearchCompleteCallback(this, getSearchCompleteHandler('image', so), null);
     so.execute(str);
-
+    /*
     so = new google.search.VideoSearch();
     so.setSearchCompleteCallback(this, getSearchCompleteHandler('video', so), null);
     so.execute(str);
 
     so = new google.search.NewsSearch();
     so.setSearchCompleteCallback(this, getSearchCompleteHandler('news', so), null);
-    so.execute(str);
+    so.execute(str);*/
 }
 
 function isVideoIsEmbedAllowed(videoId, callback) {
@@ -236,7 +350,7 @@ function getYouTube(query) {
                     ytPlayer = getEmbedYouTube(data.data.items[0].id, 'utplay', gallowed);
                 });
             }
-            console.log(data.data.items[0].status);
+            mylogger(data.data.items[0].status);
 
         } else {
             siriSaid("Nothing to play", "Nothing to play");
@@ -280,8 +394,8 @@ function getHourIdea(hour) {
 function getLocalTimeFromLocation(place, lat, lng) {
     var url = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'http%3A%2F%2Fwww.earthtools.org%2Ftimezone-1.1%2F" + escape(lat) + "%2F" + escape(lng) + "'&format=json&callback=?";
     $.getJSON(url, function (data) {
-        console.log(place + " " + data.query.results.timezone.localtime);
-        var match = data.query.results.timezone.localtime.match(/([0-9]{2} [a-zA-Z]{3} [0-9]{4}) ([0-9]{2}):([0-9]{2}):[0-9]{2}/);
+        mylogger(place + " " + data.query.results.timezone.localtime);
+        var match = data.query.results.timezone.localtime.match(/([0-9]{1,2} [a-zA-Z]{3} [0-9]{4}) ([0-9]{1,2}):([0-9]{2}):[0-9]{2}/);
         hour = match[2] * 1;
         minutes = match[3] * 1;
         var mm = getHourIdea(hour);
@@ -331,39 +445,39 @@ function analyseMap(data) {
 }
 
 function getLocalSearch(location, str) {
-    var url = 'http://www.purplegene.com/markermap?loc=' + escape(location) + '&query=' + escape(str.replace(/"/g, ''));
+    var url = hostname+'/markermap?loc=' + escape(location) + '&query=' + escape(str.replace(/"/g, ''));
     var frame = '<br><br><iframe width="365" height="310" src="' + url + '" frameborder="0" allowfullscreen></iframe>';
     return frame;
 }
 
 function placeMaker(str) {
     var url = 'http://query.yahooapis.com/v1/public/yql?q=SELECT%20*%20FROM%20geo.placemaker%20WHERE%20documentContent%20%3D%20%22' + escape(str.replace(/"/g, '')) + '%22%20AND%20documentType%3D%22text%2Fplain%22&format=json&diagnostics=true&callback=?';
-    var bwheather = (str.toLowerCase().indexOf('weather') >= 0) || (str.toLowerCase().indexOf('temperature') >= 0);
+    var bwheather = (str.toLowerCase().indexOf('weather') >= 0) || (str.toLowerCase().indexOf('temperature') >= 0) || (str.toLowerCase().indexOf('climate') >= 0);
     var timeIndex = str.trim().toLowerCase().indexOf('time');
     var timeIndex1 = str.trim().toLowerCase().indexOf('what\'s the time');
     var timeIndex2 = str.trim().toLowerCase().indexOf('what time');
     var dateIndex = str.trim().toLowerCase().indexOf('date');
     var bTime = (timeIndex1 == 0 || timeIndex2==0 || timeIndex == 0 || dateIndex == 0);
-    var bLocal = (str.toLowerCase().indexOf('near') >= 0) || (str.toLowerCase().indexOf('around') >= 0);
+    var bLocal = isALocalSearch(str);
     $.getJSON(url, function (data) {
-        console.log(data, 'placemaker');
+        mylogger(data, 'placemaker');
         var p = analyseMap(data);
         if (p.length >= 2) {
             ignoreWA = true;
             var from = escape(p[0].name);
             var to = escape(p[1].name);
             var msg = "Here are the directions.";
-            var iframe = msg + '<br><iframe width="365" height="504" src="http://www.purplegene.com/map?f=' + from + '&t=' + to + '" frameborder="0" allowfullscreen></iframe>';
+            var iframe = msg + '<br><iframe width="365" height="504" src="'+hostname+'/map?f=' + from + '&t=' + to + '" frameborder="0" allowfullscreen></iframe>';
             siriSaid(iframe, msg);
         } else if (p.length == 1) {
-            if (bLocal) {
+            if (bLocal[0]&&bLocal[1]) {
                 ignoreWA = true;
                 var frame = getLocalSearch(p[0].name, str);
                 siriSaid('Here you go' + frame, 'Here you go.');
             } else if (bwheather) {
                 if (p[0].woeId) {
                     ignoreWA = true;
-                    var url = 'http://www.purplegene.com/weather?wid=' + escape(p[0].woeId);
+                    var url = hostname+'/weather?wid=' + escape(p[0].woeId);
                     var frame = '<br><br><iframe style="background:white" width="320" height="350" src="' + url + '" frameborder="0" allowfullscreen></iframe>';
                     siriSaid('Here you go' + frame, 'Here you go.');
                 }
@@ -372,7 +486,12 @@ function placeMaker(str) {
                 getLocalTimeFromLocation(p[0].name, p[0].centroid.latitude, p[0].centroid.longitude);
             }
         } else {
-            if (bTime && myPos.coords) {
+            if(bLocal[0]&&bLocal[1]){
+                ignoreWA = true;
+                var frame = getLocalSearch(myAddress, str+' '+myAddress);
+                siriSaid('Here you go' + frame, 'Here you go.');
+            }
+            else if (bTime && myPos.coords) {
                 ignoreWA = true;
                 var lat = myPos.coords.latitude
                 var lang = myPos.coords.longitude
@@ -380,7 +499,7 @@ function placeMaker(str) {
             }else if (bwheather && myPos.coords) {
                 ignoreWA = true;
                 if(!(myAddress==null || myAddress.length<=0)){
-                    placeMaker(str+myAddress);
+                    placeMaker("weather at "+myAddress);
                 }
             }
         }
@@ -406,7 +525,7 @@ function setImage(url1, url2) {
 }
 
 function generateNoise(opacity) {
-    if ( !! !document.createElement('canvas').getContext) {
+    if (!!!document.createElement('canvas').getContext) {
         return false;
     }
     var count = NoisyImageDataUrls.length;
@@ -454,9 +573,7 @@ function explainYourself() {
     v = v + "<br>Ask math, like multiply 1234 by 786.";
     v = v + "<br>Ask for temperature, like What is the temperature in Boston?";
     v = v + "<br>You can Ask for a joke!";
-    v = v + "<br>You can ask to simplify a relationship, like mother's father's son";
-    v = v + "<br>You can ask some data, revenue of microsoft";
-    v = v + "<br>You can express your feeling if you love me!";
+    v = v + "<br>Ask me to play music, like play katy perry";
 
     var utter = v.replace(/\<br\>/g, ' ');
     siriSaid(v, utter);
@@ -486,7 +603,18 @@ function isHavingCommand(str, cmd, anyWhere) {
         return false;
     }
 }
-
+function getJSONWithTimeout(url,timeout,callback){
+    var callBackTriggered=false;
+    $.getJSON(url,function(d){
+             callBackTriggered=true;
+             callback(d);
+    });
+    setTimeout(function(){
+        if(!callBackTriggered){
+            callback(null);
+        }
+    },timeout);
+}
 function fallToQwiki(str) {
     doQWIKIQuery(str);
 }
@@ -502,7 +630,7 @@ function recreateSpeechControl() { /*this is to solve bug with chrome*/
 
 function handleSpeakEvent(event) {
     if (event.type == 'error') {
-        console.log('Error: ' + event.errorMessage);
+        mylogger('Error: ' + event.errorMessage);
     } else if (event.type == 'end' || event.type == 'interrupted' || event.type == 'interrupted') {
         $('#stop-button').hide();
         recreateSpeechControl();
@@ -521,12 +649,10 @@ function siriSaid(content, tts) {
     $("#console").append(sep);
     $("#console").append(leftWrap);
     $('html,body').stop();
-    $('html,body').animate({
-        scrollTop: $(document).height()
-    }, {
-        duration: 'slow',
-        easing: 'swing'
-    });
+
+
+    
+    
     if (tts) {
         tts = tts.replace(/\|/g, ':');
         chrome.tts.speak(tts, {
@@ -555,19 +681,48 @@ function youSaid(str) {
     doAnalysis(str);
 }
 
+
+function isHavingOpenActionCommand(){
+    if (isHavingCommand(currentQuery, 'show me', false) || 
+        isHavingCommand(currentQuery, 'go to', false) || 
+        isHavingCommand(currentQuery, 'open', false) || 
+        isHavingCommand(currentQuery, 'goto', false) ){
+            return true;
+        }else{
+            return false;
+        }
+}
+function stripCommands(str){
+    return str.toLowerCase().replace('go to','').replace('show me','').replace('open','').replace('showme','').replace('goto','');
+}
 function doQWIKIQuery(query) {
+    /*see if everything is fine*/
+    if(correctedQuery!==currentQuery){
+        doAnalysis(correctedQuery);
+    }
+    /*Handle special query*/
+    if (isHavingOpenActionCommand()) {
+        try{
+            var web=googleResults.web.results[0];
+            takeHimToAUrl(web.url);
+            return;
+        }catch(e){
+
+        }   
+    }
+    /* handling actual QWIKI*/
     var url = 'http://embed-api.qwiki.com/api/v1/search.json?q=' + escape(query) + '&callback=?';
-    $.getJSON(url, function (data) {
+    getJSONWithTimeout(url,5000,function (data) {
         if (ignoreWA) {
             return;
         }
-        if (data.length < 1) {
-            var msg = getRandomMsg(sorrymsg);
-            siriSaid(msg, msg);
-            var url = "http://www.google.co.in/search?q=" + escape(query);
-            siriSaid('Would you like to Google about it? <a href="' + url + '" target="_blank">' + query + '</a>', "Would you like to Google about it?");
-            isAskingQuestion = true;
-            questionContext = url;
+        if ( data===null || data.length < 1) {
+            if(saySorry()){
+                var url = "http://www.google.co.in/search?q=" + escape(query);
+                siriSaid('Would you like to Google about it? <a href="' + url + '" target="_blank">' + query + '</a>', "Would you like to Google about it?");
+                isAskingQuestion = true;
+                questionContext = url;    
+            }
             return;
         }
         var html = '<div style="width:500px;">' + data[0].text + '</div><br><div style="height:300px;overflow:hidden"><iframe width="500" height="500" src="' + data[0].embed_url + '" scrolling="no" frameborder="0"></iframe></div>';
@@ -576,7 +731,7 @@ function doQWIKIQuery(query) {
 }
 
 function doWAQuery(query) {
-    var url = 'http://www.purplegene.com/wa?q=' + escape(query) + '&cb=?';
+    var url = hostname+'/wa?q=' + escape(query) + '&cb=?';
     QueryTimer = setTimeout(function () {
         fallToQwiki(query)
     }, 10000);
@@ -624,8 +779,64 @@ function processContext(str) {
     }
 
 }
+function parseMath(str){
+    var operator={'multipl':"*", 'add':"+",'sum':"+", 'subtract':"-",'plus':"+",'minus':"-",'divide':"/",'root':"root"};
+    var op='';
+    var oprVal='';
+    for (opr in operator){
+        if(!operator.hasOwnProperty(opr)){
+            continue;
+        }
+        if(str.indexOf(opr)>=0){
+            op=operator[opr];
+            oprVal=opr;
+            break;
+        }
+    }
+    if(op.length==0){
+        return null;
+    }
+    var numbers=[];
+    str.replace(/[0-9]+/g, function(m,n){
+        numbers[numbers.length]=m; 
+    });
+    if(numbers.length==0){
+        return null;
+    }
+    return {'num':numbers,'op':op,'opr':oprVal};
+}
+function getExpressionFromString(str){
+    var pm=parseMath(str);
+    var exp=str;
+    if(pm===null){
+        return exp;
+    }
+    if(pm.op=='+' || pm.op=='*'){
+        exp='';
+        for(var i=0;i<pm.num.length;i++){
+            exp=exp+pm.num[i];
+            if(i+1<pm.num.length){
+                exp=exp+pm.op;
+            }
+        }
+    }
+    if(pm.opr=='minus' && pm.num.length>=2){
+        exp=''+pm.num[0]+"-"+pm.num[1];
+    }
+    if(pm.opr=='subtract' && pm.num.length>=2){
+        exp=''+pm.num[1]+"-"+pm.num[0];
+    }
+    if(pm.opr=='divide' && pm.num.length>=2){
+        exp=pm.num[0]+"/"+pm.num[1];
+    }
+    if(pm.opr=='root' && pm.num.length>=1){
+        exp='Math.sqrt('+pm.num[0]+')';
+    }
+    return exp;
+}
 
-function MathEval(str) {
+function MathEval(msg) {
+    str=getExpressionFromString(msg);
     try {
         var vars = "var ";
         var isFirst = true;
@@ -643,11 +854,10 @@ function MathEval(str) {
         if (ans == undefined && ans == null) {
             return false;
         }
-        var ans = str + ' is equal to ' + ans;
+        var ans = msg + ' is equal to ' + ans;
         siriSaid(ans, ans);
         return true;
     } catch (err) {
-
         return false;
     }
 }
@@ -665,13 +875,59 @@ function appendTOQueryHistory(str) {
     if (!found) {
         autoQuery[autoQuery.length] = str;
     }
+
     $("#tt").autocomplete({
         source: autoQuery
     });
 
 }
-
+function isaTodo(query){
+    var item=['make a note that','make a note of','make note','make note that',"note that",'show me todo','i have to','show me task','what to do','what todo',
+        'note','todo','task','please note that','remind me','open my to do list','open my todo list','open my to do','open my todo','open to do' ,'open todo' 
+        ,'task list','to do','remind','tasklist','todo',];
+    for(var ii=0;ii<item.length;ii++){
+        if(query.toLowerCase().indexOf(item[ii])>=0){
+           return query.toLowerCase().replace(item[ii],'');
+        }
+    }
+    return null
+}
+function addTodo(todo){
+    var iframe = '<iframe width="350" height="370" src="'+hostname+'/static/todo.html?add='+escape(todo)+'" frameborder="0" allowfullscreen></iframe>';
+    var msg=''
+    if(todo.length>1){
+        msg=getRandomMsg(taskAddedMsg);
+    }
+    else
+    {
+        msg=getRandomMsg(taskIsListHeremsg);
+    }
+    siriSaid(msg+"<br>"+iframe,msg);
+}
+function doSpellCheck(query){
+    var url='http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20microsoft.bing.spell%20where%20query%3D%22'+escape(query)+'%22&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=?';
+    $.getJSON(url, function (data) {
+            try{
+                correctedQuery=data.query.results.SpellResult.Value;    
+            }catch(exp){
+                correctedQuery=currentQuery;
+            }
+    });
+}
+function doPgFetch(query){
+    var param='/fakesiri-query?q={query}&address={addrs}&ref={ref}&cb=?';
+    param=param.replace('{query}',escape(query));
+    param=param.replace('{addrs}',escape(myAddress));
+    param=param.replace('{ref}',escape(window.location.href));
+    var url=hostname+param;
+    $.getJSON(url, function (data) {
+           mylogger('doPgFetch==',data);
+    });
+}
 function doAnalysis(str) {
+    correctedQuery=currentQuery=str;
+    doSpellCheck(str);
+    doPgFetch(str);
     chrome.tts.stop();
     if (isAskingQuestion) {
         processContext(str);
@@ -689,6 +945,16 @@ function doAnalysis(str) {
         return;
     }
     if (MathEval(str)) {
+        return;
+    }
+    var todo=isaTodo(str);
+    if(todo!==null){
+        addTodo(todo);
+        return;
+    }
+    if(isHavingCommand(str, 'Knock Knock')){
+        siriSaid(knockkock, knockkock);
+        setTimeout(promoteMe,10000);
         return;
     }
     if (isHavingCommand(str, 'help')) {
@@ -709,6 +975,11 @@ function doAnalysis(str) {
     if (isHavingCommand(str, 'joke', true)) {
         var joke = getRandomMsg(jokes);
         siriSaid(joke, joke);
+        setTimeout(promoteMe,10000);
+        return;
+    }
+    if (isHavingCommand(str, 'news', true)) {
+        doGoogleNewsDump(str.toLowerCase().replace('news',''));
         return;
     }
     $('#utplay').remove();
@@ -718,19 +989,32 @@ function doAnalysis(str) {
     var msg = getRandomMsg(waitmsg)
     siriSaid(msg, msg);
     placeMaker(str);
-    //doSearch(str);
+    doSearch(stripCommands(str));
     doAlchemyAPI(str);
-    
     ignoreWA = false;
-/*setTimeout(function(){
-        fallToQwiki(str);    
-    },1000);*/
 
     //doWAQuery(str);
 }
 
 $(document).ready(function () {
     var mike = document.getElementById('speech');
+    
+    setInterval(function(){
+        var h=$(window).height();
+        var ch=$('#console')[0].scrollHeight;
+        if(viewPortHeight!==h)
+        {
+            viewPortHeight=h;
+            $('#console').height(h-160);        
+        }
+        if(consoleHeight!==ch){
+            consoleHeight=ch;
+            $('#console').animate({scrollTop: ch+50}, {duration: 'slow',easing: 'swing'});    
+        }
+        
+    },100);
+    
+    
     mike.onwebkitspeechchange = function (e) {
         startSearch(mike.value);
     };

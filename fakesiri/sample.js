@@ -14,4 +14,5 @@ var autoQuery=[
 	'revenue of microsoft',
 	'play katy perry',
 	'where is taj mahal',
+	'todo remember the milk',
 ];
